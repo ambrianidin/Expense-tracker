@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+
+
+
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: #faf7f2;
+  --color-surface: #ffffff;
+  --color-sunken: #f4f0e9;
+  --color-ink: #1e1b2e;
+  --color-ink-soft: #56526a;
+  --color-muted: #8a8698;
+  --color-line: #ece6dc;
+  --color-line-strong: #ddd5c8;
+
+  
+  --color-primary: #6a5ceb;
+  --color-primary-strong: #5a4bd8;
+  --color-primary-soft: #8b7cf6;
+  --color-primary-tint: #efecff;
+  --color-primary-ink: #4f42c4;
+
+  --color-income: #2e9bb8;
+  --color-income-tint: #dcf1f6;
+  --color-income-ink: #1a6c82;
+  --color-expense: #ee7d55;
+  --color-expense-tint: #ffe9df;
+  --color-expense-ink: #b0512e;
+
+  --color-good: #2f9e6e;
+  --color-good-tint: #ddf5e9;
+  --color-good-ink: #1d6e4b;
+  --color-warn: #e2a600;
+  --color-warn-tint: #fff3cc;
+  --color-warn-ink: #7f6100;
+  --color-bad: #e0507a;
+  --color-bad-tint: #ffe2ea;
+  --color-bad-ink: #ad2f57;
+
+  --shadow-soft: 0 1px 2px rgb(30 27 46 / 0.04), 0 6px 20px -8px rgb(30 27 46 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(30 27 46 / 0.05), 0 14px 32px -12px rgb(30 27 46 / 0.16);
+
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-sheet-in: sheet-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  --animate-fade-in: fade-in 200ms ease-out;
+}
+
+
+
+:root {
+  --lavender-tint: #efecff; --lavender-strong: #8b7cf6; --lavender-ink: #4f42c4;
+  --mint-tint: #ddf5e9;     --mint-strong: #3cb98a;     --mint-ink: #1d6e4b;
+  --peach-tint: #ffe9df;    --peach-strong: #f08a5d;    --peach-ink: #b0512e;
+  --butter-tint: #fff3cc;   --butter-strong: #e6b422;   --butter-ink: #7f6100;
+  --sky-tint: #e0eeff;      --sky-strong: #4a9be0;      --sky-ink: #24609e;
+  --rose-tint: #ffe2ea;     --rose-strong: #e8628e;     --rose-ink: #ad2f57;
+  --sage-tint: #e6f0dc;     --sage-strong: #7fa650;     --sage-ink: #4a6b2a;
+  --sand-tint: #f3eadf;     --sand-strong: #c09a6b;     --sand-ink: #7a5b37;
+
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-canvas);
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+dialog::backdrop {
+  background: rgb(30 27 46 / 0.32);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
