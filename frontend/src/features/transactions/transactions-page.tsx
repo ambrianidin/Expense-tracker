@@ -89,9 +89,9 @@ export function TransactionsPage() {
           <MonthPicker value={month} onChange={withReset(setMonth)} max={currentMonth()} />
         )}
         {!allTime && (
-          <button onClick={() => withReset(setAllTime)(true)} className="rounded-full px-3 py-2 text-[13px] font-semibold text-ink-soft hover:bg-sunken hover:text-ink">
+          <Button size="sm" variant="ghost" onClick={() => withReset(setAllTime)(true)}>
             Semua waktu
-          </button>
+          </Button>
         )}
         <Segmented
           label="Filter jenis"
@@ -130,7 +130,7 @@ export function TransactionsPage() {
         </Select>
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
-          <Input aria-label="Cari transaksi" placeholder="Cari catatan, kategori, akun" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+          <Input aria-label="Cari transaksi" placeholder="Cari transaksi…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11" />
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-# Budgetly
+# Savena
 
 Budget & savings planner: catat pemasukan/pengeluaran, transfer antar akun, budget bulanan per kategori,
 dan tabungan virtual per goal. Semua angka dihitung di server dari data sumber.
@@ -33,7 +33,7 @@ frontend/
    Buka **Connect**, salin URI **Session pooler** (port 5432), lalu salin `backend/.env.example`
    ke `backend/.env` dan isi `DATABASE_URL`. Migrasi berjalan otomatis saat API start.
 
-   Semua tabel Budgetly dibuat di schema Postgres tersendiri (`DB_SCHEMA`, default `budgetly`),
+   Semua tabel Savena dibuat di schema Postgres tersendiri (`DB_SCHEMA`, default `budgetly`),
    dan koneksi hanya melihat schema itu. Tabel project lain di `public` tidak pernah dibaca atau
    diubah, jadi satu database bisa dipakai bersama. Schema `budgetly` tidak diekspos lewat Data
    API Supabase, dan tabelnya juga diberi RLS tanpa policy sebagai lapisan tambahan.
@@ -54,6 +54,24 @@ frontend/
    `http://localhost:8080`), sehingga cookie sesi dan CSRF bersifat first-party.
    Kalau API jalan di port lain (misalnya 8080 sudah terpakai), tulis
    `BACKEND_URL=http://localhost:<port>` di `frontend/.env.local`.
+
+## Jatah harian dan notifikasi
+
+- Halaman Budget dan ringkasan Beranda menampilkan jatah harian per kategori: sisa budget
+  dibagi sisa hari bulan itu, termasuk hari ini di WIB, dibulatkan ke bawah ke rupiah utuh.
+  Budget habis menghasilkan Rp0/hari. Bulan lampau ditandai selesai; bulan mendatang
+  menampilkan rencana berdasarkan seluruh hari dalam bulan tersebut.
+- Pusat Notifikasi menyimpan peringatan 80% dan 100% di database, sekali per kategori,
+  bulan, dan ambang. Peringatan 100% menggantikan status belum dibaca pada peringatan 80%.
+  Catatan peringatan tetap ada saat transaksi atau batas budget kemudian diperbaiki.
+- Pengingat tagihan manual memiliki nama, tanggal jatuh tempo, nominal opsional, serta
+  waktu pengingat 0–30 hari sebelumnya (default UI: 3 hari). Pengingat dapat diubah,
+  ditandai selesai, atau dihapus. Menandai selesai tidak mencatat transaksi pembayaran.
+- Data disegarkan setiap menit selama aplikasi terbuka dan saat kembali aktif. Budget
+  yang sudah mencapai ambang dan tagihan yang jatuh tempo saat aplikasi ditutup akan
+  muncul saat dibuka kembali. Status dibaca tersimpan per pengguna, lintas perangkat.
+- Migrasi `0002_notifications.sql` menambahkan tabel `notifications` dan `bill_reminders`.
+  Jalankan ulang API dengan `MIGRATE_ON_START=true` atau `go run ./cmd/api migrate`.
 
 ## Tes
 

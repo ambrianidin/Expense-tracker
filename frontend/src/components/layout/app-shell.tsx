@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import {
+  Bell,
   ChartColumn,
   ChartPie,
   LayoutDashboard,
@@ -21,7 +22,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ApiError, UNAUTHORIZED_EVENT, api } from "@/lib/api/client";
-import { useMe } from "@/lib/api/hooks";
+import { useMe, useNotifications } from "@/lib/api/hooks";
 import type { Transaction, TxType } from "@/lib/api/types";
 import { TransactionModal } from "@/features/transactions/transaction-form";
 import { Logo } from "./logo";
@@ -35,6 +36,7 @@ const NAV: NavItem[] = [
   { href: "/budgets", label: "Budget", icon: ChartPie },
   { href: "/savings", label: "Tabungan", icon: PiggyBank },
   { href: "/reports", label: "Laporan", icon: ChartColumn },
+  { href: "/notifications", label: "Notifikasi", icon: Bell },
   { href: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
@@ -49,6 +51,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const qc = useQueryClient();
   const me = useMe();
+  const notifications = useNotifications(false, 1, !!me.data);
+  const unreadCount = notifications.data?.unread_count ?? 0;
   const [quick, setQuick] = useState<{ type?: TxType; edit?: Transaction } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -97,12 +101,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Button className="mx-1 mt-7" icon={Plus} onClick={() => open()}>
             Catat transaksi
           </Button>
-          <nav className="mt-6 flex flex-col gap-1" aria-label="Navigasi utama">
+          <nav className="mt-6 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto" aria-label="Navigasi utama">
             {NAV.map((item) => (
-              <NavLink key={item.href} item={item} active={isActive(item.href)} />
+              <NavLink key={item.href} item={item} active={isActive(item.href)} badge={item.href === "/notifications" ? unreadCount : 0} />
             ))}
           </nav>
-          <div className="mt-auto flex items-center gap-3 rounded-3xl border border-line bg-surface p-3">
+          <div className="mt-4 flex shrink-0 items-center gap-3 rounded-3xl border border-line bg-surface p-3">
             <Avatar name={user?.name ?? ""} />
             <div className="min-w-0 flex-1">
               {user ? (
@@ -133,9 +137,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/dashboard">
             <Logo />
           </Link>
-          <Link href="/settings" aria-label="Pengaturan profil">
-            <Avatar name={user?.name ?? ""} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/notifications" aria-label={unreadCount ? `Notifikasi, ${unreadCount} belum dibaca` : "Notifikasi"} className="relative inline-flex size-11 items-center justify-center rounded-full text-ink-soft hover:bg-sunken">
+              <Bell className="size-5" aria-hidden />
+              {unreadCount > 0 && <span className="absolute right-0 top-0 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-white">{unreadCount > 99 ? "99+" : unreadCount}</span>}
+            </Link>
+            <Link href="/settings" aria-label="Pengaturan profil"><Avatar name={user?.name ?? ""} /></Link>
+          </div>
         </header>
 
         <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:px-10 lg:pb-12 lg:pt-10">
@@ -172,7 +180,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={() => setMenuOpen(true)}
             className={clsx(
               "flex w-16 flex-col items-center gap-0.5 rounded-2xl py-1 text-[11px] font-semibold transition",
-              ["/accounts", "/budgets", "/reports", "/settings"].some(isActive) ? "text-primary-ink" : "text-muted",
+              ["/accounts", "/budgets", "/reports", "/settings", "/notifications"].some(isActive) ? "text-primary-ink" : "text-muted",
             )}
           >
             <Menu className="size-5" />
@@ -226,7 +234,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({ item, active, badge = 0 }: { item: NavItem; active: boolean; badge?: number }) {
   const Icon = item.icon;
   return (
     <Link
@@ -246,6 +254,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         <Icon className="size-[18px]" strokeWidth={2.1} />
       </span>
       {item.label}
+      {badge > 0 && <span className="ml-auto rounded-full bg-primary px-2 text-[11px] font-bold leading-5 text-white" aria-label={`${badge} belum dibaca`}>{badge > 99 ? "99+" : badge}</span>}
     </Link>
   );
 }

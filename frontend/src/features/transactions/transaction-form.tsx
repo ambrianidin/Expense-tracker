@@ -214,12 +214,12 @@ export function TransactionModal({ initial, defaultType = "expense", onClose }: 
                     aria-pressed={active}
                     onClick={() => setAccountId(a.id)}
                     className={clsx(
-                      "inline-flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold transition active:scale-95",
+                      "inline-flex h-11 max-w-full items-center gap-2 rounded-full border pl-1.5 pr-3.5 text-[13px]/none font-semibold transition active:scale-95",
                       active ? "border-primary bg-primary-tint/60 ring-2 ring-primary/20" : "border-line hover:bg-sunken",
                     )}
                   >
                     <IconTile icon={meta.icon} color={meta.color} size="sm" className="!size-7 !rounded-full" />
-                    {a.name}
+                    <span className="truncate">{a.name}</span>
                   </button>
                 );
               })}
@@ -227,12 +227,12 @@ export function TransactionModal({ initial, defaultType = "expense", onClose }: 
             {errors.account_id && <p className="mt-1.5 text-[13px] font-medium text-bad-ink">{errors.account_id}</p>}
           </fieldset>
 
-          <div className="grid grid-cols-[1fr_auto] gap-3">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_9rem]">
             <Field label="Tanggal" error={errors.occurred_at}>
               {(p) => <Input {...p} type="date" value={date} max={todayISO()} onChange={(e) => setDate(e.target.value)} />}
             </Field>
             <Field label="Jam (WIB)">
-              {(p) => <Input {...p} type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-32" />}
+              {(p) => <Input {...p} type="time" value={time} onChange={(e) => setTime(e.target.value)} />}
             </Field>
           </div>
 

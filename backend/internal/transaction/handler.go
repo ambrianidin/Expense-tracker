@@ -9,12 +9,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"budgetly/internal/auth"
 	"budgetly/internal/finance"
 	"budgetly/internal/httpx"
 	"budgetly/internal/ledger"
+	"budgetly/internal/notification"
 	"budgetly/internal/platform/db"
 )
 
@@ -268,10 +270,12 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var id string
-	err := h.DB.QueryRow(r.Context(), `
+	err := notification.WithRefresh(r.Context(), h.DB, userID, func(tx pgx.Tx) error {
+		return tx.QueryRow(r.Context(), `
 		INSERT INTO transactions (user_id, account_id, category_id, type, amount_idr, occurred_at, note)
 		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-		userID, f.accountID, f.categoryID, f.kind, f.amount, f.occurredAt, f.note).Scan(&id)
+			userID, f.accountID, f.categoryID, f.kind, f.amount, f.occurredAt, f.note).Scan(&id)
+	})
 	if err != nil {
 		return mapWriteErr(err)
 	}
@@ -332,11 +336,14 @@ func (h *Handler) update(w http.ResponseWriter, r *http.Request) error {
 	if err := v.Err(); err != nil {
 		return err
 	}
-	_, err = h.DB.Exec(r.Context(), `
+	err = notification.WithRefresh(r.Context(), h.DB, userID, func(tx pgx.Tx) error {
+		_, err := tx.Exec(r.Context(), `
 		UPDATE transactions SET type = $3, account_id = $4, category_id = $5, amount_idr = $6,
 		       occurred_at = $7, note = $8, updated_at = now()
 		WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`,
-		id, userID, f.kind, f.accountID, f.categoryID, f.amount, f.occurredAt, f.note)
+			id, userID, f.kind, f.accountID, f.categoryID, f.amount, f.occurredAt, f.note)
+		return err
+	})
 	if err != nil {
 		return mapWriteErr(err)
 	}

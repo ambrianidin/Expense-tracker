@@ -23,6 +23,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { BudgetBadge, Card, CardHeader, EmptyState, ErrorNote, IconTile, Meter, MonthPicker, Skeleton, budgetTone } from "@/components/ui/misc";
 import { CategoryBars } from "@/features/charts/charts";
 import { TransactionRow } from "@/features/transactions/transaction-row";
+import { DailyAllowance } from "@/features/budgets/daily-allowance";
 import { useMe, useSummary } from "@/lib/api/hooks";
 import { iconFor, tone } from "@/lib/catalog";
 import { currentMonth, dateLabel, dayKey, firstName, greeting, monthLabel, pct, rupiah, todayISO } from "@/lib/format";
@@ -153,6 +154,7 @@ export function Dashboard() {
                             <BudgetBadge status={b.status} usage={b.usage_pct} />
                           </div>
                           <Meter value={b.usage_pct} color={t.fill} track={t.track} label={`Budget ${b.category.name} terpakai ${pct(b.usage_pct)}`} size="sm" />
+                          <DailyAllowance budget={b} compact />
                         </li>
                       );
                     })}

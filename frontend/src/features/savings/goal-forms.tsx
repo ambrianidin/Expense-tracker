@@ -186,7 +186,7 @@ export function AllocationModal({ goal, summary, defaultType = "allocate", onClo
   const quick = type === "allocate" ? [100_000, 250_000, 500_000].filter((v) => v <= maxAmount) : [];
 
   return (
-    <Modal title={goal.title} description="Dana tetap di akunmu. Budgetly hanya menandai untuk goal ini." onClose={onClose} size="sm">
+    <Modal title={goal.title} description="Dana tetap di akunmu. Savena hanya menandai untuk goal ini." onClose={onClose} size="sm">
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         {formError && <ErrorNote message={formError} />}
         <div className="rounded-2xl p-4" style={{ background: t.tint }}>
@@ -228,14 +228,14 @@ export function AllocationModal({ goal, summary, defaultType = "allocate", onClo
         </Field>
         <div className="flex flex-wrap gap-2">
           {quick.map((v) => (
-            <button key={v} type="button" onClick={() => setAmount(v)} className="tnum rounded-full border border-line px-3 py-1.5 text-[13px] font-semibold hover:bg-sunken">
+            <Button key={v} size="sm" variant="secondary" onClick={() => setAmount(v)} className="tnum">
               {rupiah(v)}
-            </button>
+            </Button>
           ))}
           {maxAmount > 0 && (
-            <button type="button" onClick={() => setAmount(maxAmount)} className="rounded-full border border-line px-3 py-1.5 text-[13px] font-semibold hover:bg-sunken">
+            <Button size="sm" variant="secondary" onClick={() => setAmount(maxAmount)}>
               {type === "allocate" ? "Maksimal" : "Semua"}
-            </button>
+            </Button>
           )}
         </div>
         <Field label="Catatan" optional>

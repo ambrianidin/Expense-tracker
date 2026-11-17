@@ -10,7 +10,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Budgetly", template: "%s · Budgetly" },
+  title: { default: "Savena", template: "%s · Savena" },
   description: "Catat pemasukan, atur budget, dan sisihkan tabungan dengan tenang.",
 };
 

@@ -21,6 +21,7 @@ export const config = {
     "/savings/:path*",
     "/reports/:path*",
     "/settings/:path*",
+    "/notifications/:path*",
     "/onboarding/:path*",
   ],
 };

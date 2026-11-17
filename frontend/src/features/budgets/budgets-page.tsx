@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { ChartPie, Info, Pencil, Plus, Trash } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button, IconButton } from "@/components/ui/button";
 import { Field, MoneyInput, Select } from "@/components/ui/field";
@@ -13,9 +14,17 @@ import { useBudgets, useCategories, useFinanceMutation } from "@/lib/api/hooks";
 import type { Budget } from "@/lib/api/types";
 import { iconFor } from "@/lib/catalog";
 import { currentMonth, monthLabel, pct, rupiah } from "@/lib/format";
+import { DailyAllowance } from "./daily-allowance";
 
 export function BudgetsPage() {
-  const [month, setMonth] = useState(currentMonth());
+  const searchParams = useSearchParams();
+  const requestedMonth = searchParams.get("month") ?? "";
+  const initialMonth = /^(20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(requestedMonth) ? requestedMonth : currentMonth();
+  return <BudgetContent key={initialMonth} initialMonth={initialMonth} />;
+}
+
+function BudgetContent({ initialMonth }: { initialMonth: string }) {
+  const [month, setMonth] = useState(initialMonth);
   const budgetsQ = useBudgets(month);
   const [editing, setEditing] = useState<Budget | "new" | null>(null);
   const [deleting, setDeleting] = useState<Budget | null>(null);
@@ -53,7 +62,7 @@ export function BudgetsPage() {
 
       <div className="mb-5 flex items-start gap-2.5 text-[13px] text-ink-soft">
         <Info className="mt-0.5 size-4 shrink-0 text-[var(--sky-ink)]" />
-        <p>Budget hanya pembanding, bukan uang yang dipindahkan. Pengeluaran tetap bisa dicatat meski budget terlampaui.</p>
+        <p>Jatah harian adalah panduan dari sisa budget, dibulatkan ke bawah; bukan saldo akun. Nilainya dihitung ulang setelah transaksi dan saat berganti hari. Pengeluaran tetap bisa dicatat meski budget terlampaui.</p>
       </div>
 
       {budgetsQ.isError && <ErrorNote message={budgetsQ.error.message} onRetry={() => budgetsQ.refetch()} />}
@@ -123,6 +132,7 @@ export function BudgetsPage() {
                   <p className={clsx("mt-2.5 text-[13px] font-semibold", b.remaining_idr < 0 ? "text-bad-ink" : "text-ink-soft")}>
                     {b.remaining_idr >= 0 ? `Sisa ${rupiah(b.remaining_idr)}` : `Melebihi ${rupiah(-b.remaining_idr)}`}
                   </p>
+                  <DailyAllowance budget={b} />
                 </Card>
               );
             })}

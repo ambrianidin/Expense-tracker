@@ -20,6 +20,7 @@ import (
 	"budgetly/internal/config"
 	"budgetly/internal/goal"
 	"budgetly/internal/httpx"
+	"budgetly/internal/notification"
 	"budgetly/internal/report"
 	"budgetly/internal/transaction"
 	"budgetly/internal/transfer"
@@ -56,6 +57,7 @@ func New(pool *pgxpool.Pool, cfg config.Config) http.Handler {
 			(&transaction.Handler{DB: pool}).Routes(p)
 			(&transfer.Handler{DB: pool}).Routes(p)
 			(&budget.Handler{DB: pool}).Routes(p)
+			(&notification.Handler{DB: pool}).Routes(p)
 			(&goal.Handler{DB: pool}).Routes(p)
 			(&report.Handler{DB: pool}).Routes(p)
 		})

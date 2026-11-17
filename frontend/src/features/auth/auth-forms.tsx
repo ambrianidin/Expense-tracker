@@ -154,7 +154,7 @@ export function RegisterForm() {
   return (
     <div className="animate-pop-in">
       <h1 className="text-[28px] font-extrabold tracking-tight">Mulai rapikan uangmu</h1>
-      <p className="mt-1.5 text-[15px] text-ink-soft">Buat akun Budgetly dalam satu menit.</p>
+      <p className="mt-1.5 text-[15px] text-ink-soft">Buat akun Savena dalam satu menit.</p>
       <form onSubmit={onSubmit} noValidate className="mt-8 space-y-4">
         {formError && <ErrorNote message={formError} />}
         <Field label="Nama panggilan" error={errors.name}>

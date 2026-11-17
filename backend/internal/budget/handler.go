@@ -7,11 +7,13 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"budgetly/internal/auth"
 	"budgetly/internal/finance"
 	"budgetly/internal/httpx"
+	"budgetly/internal/notification"
 	"budgetly/internal/platform/db"
 )
 
@@ -37,7 +39,8 @@ type Item struct {
 	Month    string      `json:"month"`
 	Category CategoryRef `json:"category"`
 	finance.BudgetProgress
-	CreatedAt time.Time `json:"created_at"`
+	DailyAllowance finance.DailyAllowance `json:"daily_allowance"`
+	CreatedAt      time.Time              `json:"created_at"`
 }
 
 type Totals struct {
@@ -74,6 +77,7 @@ func query(ctx context.Context, q db.Querier, sql string, userID string, m finan
 	defer rows.Close()
 	items := []Item{}
 	var t Totals
+	now := time.Now()
 	for rows.Next() {
 		var it Item
 		var limit, spent int64
@@ -83,6 +87,7 @@ func query(ctx context.Context, q db.Querier, sql string, userID string, m finan
 		}
 		it.Month = m.String()
 		it.BudgetProgress = finance.ComputeBudget(limit, spent)
+		it.DailyAllowance = finance.ComputeDailyAllowance(it.RemainingIDR, m, now)
 		t.LimitIDR += limit
 		t.SpentIDR += spent
 		items = append(items, it)
@@ -174,9 +179,11 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var id string
-	err = h.DB.QueryRow(r.Context(), `
+	err = notification.WithRefresh(r.Context(), h.DB, userID, func(tx pgx.Tx) error {
+		return tx.QueryRow(r.Context(), `
 		INSERT INTO budgets (user_id, category_id, month_start, limit_idr) VALUES ($1, $2, $3, $4) RETURNING id`,
-		userID, req.CategoryID, m.Date(), req.LimitIDR).Scan(&id)
+			userID, req.CategoryID, m.Date(), req.LimitIDR).Scan(&id)
+	})
 	if db.IsUniqueViolation(err, "budgets_user_category_month_key") {
 
 		return &httpx.Error{Status: http.StatusConflict, Code: "budget_exists",
@@ -211,13 +218,18 @@ func (h *Handler) update(w http.ResponseWriter, r *http.Request) error {
 		return httpx.FieldError("limit_idr", "Batas budget harus lebih dari 0.")
 	}
 	userID := auth.UserID(r.Context())
-	tag, err := h.DB.Exec(r.Context(), `UPDATE budgets SET limit_idr = $3, updated_at = now() WHERE id = $1 AND user_id = $2`,
-		id, userID, req.LimitIDR)
+	err = notification.WithRefresh(r.Context(), h.DB, userID, func(tx pgx.Tx) error {
+		tag, err := tx.Exec(r.Context(), `UPDATE budgets SET limit_idr = $3, updated_at = now() WHERE id = $1 AND user_id = $2`, id, userID, req.LimitIDR)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return httpx.NotFound(notFoundMsg)
+		}
+		return nil
+	})
 	if err != nil {
 		return err
-	}
-	if tag.RowsAffected() == 0 {
-		return httpx.NotFound(notFoundMsg)
 	}
 	it, err := h.getOne(r.Context(), userID, id)
 	if err != nil {

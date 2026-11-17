@@ -16,10 +16,13 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-[13px] gap-1.5",
-  md: "h-11 px-5 text-sm gap-2",
-  lg: "h-12 px-6 text-[15px] gap-2",
+  sm: "h-9 px-3.5 text-[13px]/none gap-1.5",
+  md: "h-11 px-5 text-sm/none gap-2",
+  lg: "h-12 px-6 text-[15px]/none gap-2",
 };
+
+const buttonClass =
+  "inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full font-semibold align-middle transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.97] [&_svg]:shrink-0";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -39,7 +42,8 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
       type={type}
       disabled={disabled || loading}
       className={clsx(
-        "inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold transition-all duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
+        buttonClass,
+        "disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         sizes[size],
         block && "w-full",
@@ -48,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
       {...rest}
     >
       {loading ? (
-        <LoaderCircle className="size-4 animate-spin" aria-hidden />
+        <LoaderCircle className={clsx("animate-spin", size === "sm" ? "size-4" : "size-[18px]")} aria-hidden />
       ) : (
         Icon && <Icon className={size === "sm" ? "size-4" : "size-[18px]"} strokeWidth={2.25} aria-hidden />
       )}
@@ -64,7 +68,7 @@ export function LinkButton({ variant = "primary", size = "md", icon: Icon, class
   return (
     <Link
       className={clsx(
-        "inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold transition-all duration-150 active:scale-[0.97]",
+        buttonClass,
         variants[variant],
         sizes[size],
         className,
@@ -91,7 +95,7 @@ export function IconButton({ icon: Icon, label, tone = "default", size = "md", c
       aria-label={label}
       title={label}
       className={clsx(
-        "inline-flex shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:opacity-40",
+        "inline-flex shrink-0 items-center justify-center rounded-full align-middle transition active:scale-95 disabled:pointer-events-none disabled:opacity-40",
         size === "sm" ? "size-8" : "size-10",
         tone === "danger" ? "text-bad-ink hover:bg-bad-tint" : "text-ink-soft hover:bg-sunken hover:text-ink",
         className,

@@ -7,6 +7,8 @@ import type {
   Allocation,
   Budget,
   BudgetTotals,
+  BillReminder,
+  NotificationPage,
   Category,
   Goal,
   MonthlyReport,
@@ -31,6 +33,8 @@ export const keys = {
   allocations: (id: string) => ["allocations", id] as const,
   summary: (month: string) => ["summary", month] as const,
   report: (month: string) => ["report", month] as const,
+  notifications: (unreadOnly = false, page = 1) => ["notifications", unreadOnly, page] as const,
+  reminders: ["bill-reminders"] as const,
 };
 
 
@@ -96,6 +100,24 @@ export function useBudgets(month: string) {
     queryKey: keys.budgets(month),
     queryFn: () => api<{ month: string; items: Budget[]; totals: BudgetTotals }>(`/budgets${qs({ month })}`),
     placeholderData: (prev) => prev,
+    refetchInterval: 60_000,
+  });
+}
+
+export function useNotifications(unreadOnly = false, page = 1, enabled = true) {
+  return useQuery({
+    queryKey: keys.notifications(unreadOnly, page),
+    queryFn: () => api<NotificationPage>(`/notifications${qs({ unread_only: unreadOnly || undefined, page })}`),
+    enabled,
+    refetchInterval: 60_000,
+  });
+}
+
+export function useBillReminders() {
+  return useQuery({
+    queryKey: keys.reminders,
+    queryFn: () => api<{ items: BillReminder[]; total: number }>("/bill-reminders"),
+    refetchInterval: 60_000,
   });
 }
 
@@ -119,6 +141,7 @@ export function useSummary(month: string) {
     queryKey: keys.summary(month),
     queryFn: () => api<Summary>(`/dashboard/summary${qs({ month })}`),
     placeholderData: (prev) => prev,
+    refetchInterval: 60_000,
   });
 }
 

@@ -83,8 +83,33 @@ export type Budget = {
   remaining_idr: number;
   usage_pct: number;
   status: BudgetStatus;
+  daily_allowance: { amount_idr: number; days_remaining: number; period: "current" | "past" | "future"; as_of_date: string };
   created_at: string;
 };
+
+export type AppNotification = {
+  id: string;
+  kind: "budget_warning" | "budget_exceeded" | "bill_due";
+  title: string;
+  body: string;
+  href: string;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type NotificationPage = { items: AppNotification[]; total: number; unread_count: number; page: number; page_size: number };
+
+export type BillReminder = {
+  id: string;
+  title: string;
+  amount_idr: number | null;
+  due_date: string;
+  remind_days_before: number;
+  completed_at: string | null;
+  created_at: string;
+};
+
+export type BillReminderInput = Pick<BillReminder, "title" | "amount_idr" | "due_date" | "remind_days_before">;
 
 export type BudgetTotals = { limit_idr: number; spent_idr: number; remaining_idr: number; usage_pct: number };
 

@@ -179,16 +179,16 @@ type MonthPickerProps = { value: string; onChange: (m: string) => void; max?: st
 export function MonthPicker({ value, onChange, max, className }: MonthPickerProps) {
   const atMax = !!max && value >= max;
   return (
-    <div className={clsx("inline-flex items-center gap-1 rounded-full border border-line bg-surface p-1 shadow-soft", className)}>
+    <div className={clsx("inline-flex h-11 shrink-0 items-center gap-1 rounded-full border border-line bg-surface p-1 align-middle shadow-soft", className)}>
       <button
         type="button"
         onClick={() => onChange(shiftMonth(value, -1))}
         aria-label="Bulan sebelumnya"
-        className="inline-flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-sunken hover:text-ink"
+        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-sunken hover:text-ink"
       >
         <ChevronLeft className="size-4" />
       </button>
-      <span className="min-w-32 text-center text-sm font-semibold capitalize" aria-live="polite">
+      <span className="min-w-32 whitespace-nowrap text-center text-sm font-semibold capitalize leading-none" aria-live="polite">
         {monthLabel(value)}
       </span>
       <button
@@ -196,7 +196,7 @@ export function MonthPicker({ value, onChange, max, className }: MonthPickerProp
         onClick={() => onChange(shiftMonth(value, 1))}
         disabled={atMax}
         aria-label="Bulan berikutnya"
-        className="inline-flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-sunken hover:text-ink disabled:opacity-30 disabled:hover:bg-transparent"
+        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-sunken hover:text-ink disabled:opacity-30 disabled:hover:bg-transparent"
       >
         <ChevronRight className="size-4" />
       </button>
